@@ -1,0 +1,40 @@
+
+<html>
+<!-- PoPo 数据可视化 PoPoDV.com -->
+<!-- 文字动效 http://www.popodv.com/dv/62bee81529680631181.html -->
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<title>PoPo数据可视化_文字动效</title>
+		<link type="text/css" rel="stylesheet" href="../demos/62bee81529680631181.css" />
+		<script src="http://static.popodv.com/dvlibs/d3/d3.v4.min.js"></script>
+		<script src="http://static.popodv.com/dvlibs/tool/jquery.min.js"></script>
+		<style>html,body,#container{width:100%;height:100%;margin:0;padding:0;}</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script>
+
+        // Add Container
+        $("#container").html('<h1>0</h1>');
+
+        var format = d3.format(",d");
+
+        d3.select("#container h1")
+            .transition()
+            .duration(2500)
+            .on("start", function repeat() {
+                d3.active(this)
+                    .tween("text", function () {
+                        var that = d3.select(this),
+                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), Math.random() * 1e6);
+                        return function (t) { that.text(format(i(t))); };
+                    })
+                    .transition()
+                    .delay(3000)
+                    .on("start", repeat);
+            });
+
+        		</script>
+</body>
+</html>
