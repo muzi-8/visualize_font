@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html >
+   <head>
+       <meta charset="utf-8">
+       <!-- css样式-->
+       <style type="text/css">
+           body{
+            width: 100%;
+            height: 750px;
+           }
+           #container{
+            width: 50%;
+            height: 700px;
+            float: left;
+            margin-top: 100px;
+           }
+           #container1{
+            width: 50%;
+            height: 700px;
+            float: right;
+            margin-top: 100px;
+           }
+       </style>
+   </head>
+   <body>
+       <div id="container"></div>
+       <div id="container1"></div>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <!-- <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script> -->
+       <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+option = null;
+
+var Year = [2012,2013,2014,2015,2016,2017,2018];
+//var Month = [1,2,3,4,5,6,7,8,9,10,11,12];
+var Student = [15,22,38,56,85,105,132];
+var ZhiGong = [50,57,67,77,81,91,124];
+
+var dom1 = document.getElementById("container1");
+var myChart1 = echarts.init(dom1);
+optionJingfei = null;
+var Year1 = [2014,2015,2016,2017,2018];
+var Jingfei = [8123,15784,10000,18632,15023];
+
+
+function getData(year,month) {
+    var vStu,vZhi;
+  //   if(year == 0){
+		// vStu = month*(Student[year]/12.0);
+		// vZhi = month*(ZhiGong[year]/12.0);
+  //   }
+  //   else{
+  //   	vStu = Student[year-1]+month*((Student[year]-Student[year-1])/12.0);
+  //   	vZhi = ZhiGong[year-1]+month*((ZhiGong[year]-ZhiGong[year-1])/12.0);
+  //   }
+    vStu = Student[year];
+    vZhi = ZhiGong[year];
+    return [{
+        value: vStu
+    },
+    {
+    	value: vZhi
+    }]
+
+}
+
+function getJingfeiData(year,month) {
+    var vJing;
+    //,vZhi;
+  //   if(year == 0){
+        // vStu = month*(Student[year]/12.0);
+        // vZhi = month*(ZhiGong[year]/12.0);
+  //   }
+  //   else{
+  //    vStu = Student[year-1]+month*((Student[year]-Student[year-1])/12.0);
+  //    vZhi = ZhiGong[year-1]+month*((ZhiGong[year]-ZhiGong[year-1])/12.0);
+  //   }
+    vJing = Jingfei[year];
+    return {
+        value: vJing
+    }
+
+}
+
+function getDate(year,month) {
+    //var a = [Year[year].toString(), Month[month].toString()].join('/');
+    var a = Year[year].toString();
+    return {
+        value: a
+    }
+}
+
+function getJingfeiDate(year,month) {
+    //var a = [Year[year].toString(), Month[month].toString()].join('/');
+    var a = Year1[year].toString();
+    return {
+        value: a
+    }
+}
+// 全局变量
+var dataStu = [];
+var dataZhi = [];
+var date = [];
+var dataJingfei= [];
+var dateJingfei = [];
+
+//初始化图表
+option = {
+    title: {
+        text: '人数变化',
+        textStyle: {
+        	fontSize:30,
+        	align:'center',
+        }
+    },
+    legend: {
+    	//itemWidth: 50,
+    	//itemHeight: 50,
+    	//right: 0,
+    	//width: 50,
+    	//height:50,
+    	//x:'left',
+    	top:'5%',
+        data:['学生人数','职工人数'],
+        textStyle: {
+        	fontSize:20,
+        	align:'center'
+        	//fontFamily:'Microsoft YaHei'
+        }
+    },
+    xAxis: {
+        type: 'category',
+        splitLine: {
+            show: false
+        },
+        axisLabel :{
+        	fontSize :20
+        	//fontFamily:'Microsoft YaHei'
+        },
+        data:date
+    },
+    yAxis: {
+        type: 'value',
+        boundaryGap: [0, '100%'],
+        splitLine: {
+            show: false
+        },
+        min: 0,
+        max:140,
+        axisLabel :{
+        	fontSize :20,
+        }
+    },
+    series: [{
+        name: "学生人数",
+        type: 'line',
+        showSymbol: false,
+        hoverAnimation: false,
+        data: dataStu,
+        // rich:{color:"#00f"},
+        smooth:true,
+        markPoint: {
+                symbol:'pin',
+                symbolSize:40,
+                symbolRotate: 0
+            },
+    },
+    {
+        name: '职工人数',
+        type: 'line',
+        showSymbol: false,
+        hoverAnimation: false,
+        data: dataZhi,
+        smooth:true,
+        markPoint: {
+                symbol:'rect',
+                symbolSize:20,
+                symbolRotate: 180
+            }
+    }]
+};
+//初始化图表
+optionJingfei = {
+    title: {
+        text: '科研经费',
+        //left: 'middle',
+        textStyle: {
+            fontSize:30,
+            align:'center'
+            //fontFamily:'Arial'
+        }
+    },
+    // legend: {
+    //  //itemWidth: 50,
+    //  //itemHeight: 50,
+    //  //right: 0,
+    //  //width: 50,
+    //  //height:50,
+    //  //x:'left',
+    //  top:'5%',
+    //     data:['学生人数','职工人数'],
+    //     textStyle: {
+    //      fontSize:20,
+    //      align:'center',
+    //      fontFamily:'Microsoft YaHei'
+    //     }
+    // },
+    xAxis: {
+        type: 'category',
+        splitLine: {
+            show: false
+        },
+        axisLabel :{
+            fontSize :20
+            //fontFamily:'Microsoft YaHei'
+        },
+        data:dateJingfei
+    },
+    yAxis: {
+        type: 'value',
+        boundaryGap: [0, '100%'],
+        splitLine: {
+            show: false
+        },
+        min: 0,
+        max:20000,
+        axisLabel :{
+            fontSize :20,
+        },
+        axisLabel: {
+            formatter: '{value} 万元'
+        }
+    },
+    series: [{
+        name: "科研经费",
+        type: 'line',
+        showSymbol: false,
+        hoverAnimation: false,
+        data: dataJingfei,
+        color:'#61a0a8',
+        smooth:true,
+        markPoint: {
+                symbol:'pin',
+                symbolSize:40,
+                symbolRotate: 0
+            },
+    }
+    // {
+    //     name: '职工人数',
+    //     type: 'line',
+    //     showSymbol: false,
+    //     hoverAnimation: false,
+    //     data: dataZhi,
+    //     smooth:true,
+    //     markPoint: {
+    //             symbol:'rect',
+    //             symbolSize:20,
+    //             symbolRotate: 180
+    //         }
+    // }
+    ]
+
+};
+//全局变量
+var nowYear = 0;
+var nowMonth = 11
+var annStu = [];
+var annZhi = [];
+var nowYearJingfei = 0;
+var nowMonthJingfei = 11
+var annJingfei = [];
+//ar n = 0;
+
+
+// 定时函数
+setInterval(function () {
+        // if(n < 5){
+        //     n = n+1;
+        //     return;
+        // }
+		if(nowYear > 6){
+			return;
+		}
+        //data.shift();
+        var a = getData(nowYear,nowMonth);
+        //console.log(a.value);
+        dataStu.push(a[0]);
+        dataZhi.push(a[1]);
+        nowDate = getDate(nowYear,nowMonth);
+        date.push(nowDate);
+
+
+        //if(nowMonth == 11){
+        	var s = {
+        		coord:[nowDate.value,a[0].value],
+        		value: Student[nowYear]
+        	};
+        	annStu.push(s);
+        	var z = {
+        		coord:[nowDate.value,a[1].value],
+        		value: ZhiGong[nowYear]
+        			};
+        	annZhi.push(z);
+       //}
+ //        nowMonth = nowMonth + 1;
+ //        if(nowMonth == 12){
+ //        	nowMonth = 0;
+ //        	nowYear = nowYear + 1;
+ //        }
+	 nowYear = nowYear + 1;
+
+   myChart.setOption({
+    	xAxis: {
+        data:date
+    },
+        series: [{
+        	name:"学生人数",
+            data:dataStu,
+            markPoint: {
+            	// label: {
+             //    	//normal: {
+             //        	show: true,
+             //        	position: 'top',
+             //    	//}
+             //    	//formatter:'{@value}'
+            	// },
+            data: annStu
+            }
+
+        },
+        {
+        	name:'职工人数',
+            data:dataZhi,
+            markPoint: {
+                data: annZhi
+            }
+        }]
+    });
+
+// 运用return控制程序
+      if(nowYear < 3)
+      {
+        return;
+      }
+      if(nowYearJingfei > 4)
+      {
+        return;
+      }
+
+var a1 = getJingfeiData(nowYearJingfei,nowMonthJingfei);
+dataJingfei.push(a1);
+nowDate1 = getJingfeiDate(nowYearJingfei,nowMonthJingfei);
+dateJingfei.push(nowDate1);
+
+var s1 = {
+              coord:[nowDate1.value,a1.value],
+              value: Jingfei[nowYearJingfei]
+         };
+annJingfei.push(s1);
+nowYearJingfei = nowYearJingfei + 1;
+
+myChart1.setOption({
+        xAxis: {
+        data:dateJingfei
+        },
+        series: [{
+            name:"科研经费",
+            data:dataJingfei,
+            markPoint: {
+             // label: {
+             //     //normal: {
+             //         show: true,
+             //         position: 'top',
+             //     //}
+             //     //formatter:'{@value}'
+            // },
+            data: annJingfei
+            }
+          }]
+      });
+    }, 700);
+
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+if (optionJingfei && typeof optionJingfei === "object") {
+    myChart1.setOption(optionJingfei, true);
+}
+</script>
+</body>
+</html>
