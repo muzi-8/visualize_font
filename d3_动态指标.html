@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+       <!--动态虚线图，需要配合使用css动画-->
+       <style>
+       .axis path,
+       .axis line
+       {
+         fill:none;
+         stroke:black;
+         shape-rendering:crispEdges;        /* //设置线条的样式 */
+       }
+    .line:nth-child(1)
+    {
+            stroke-dasharray: 30;             /* //设置虚线的间隔长度 */
+            stroke-dashoffset: 30;             /* 设置线段偏移长度 */
+            animation: dash 20s infinite;
+    } /*添加动画的效果，具体想怎么动，可以修改这里面的东西*/
+    .line:nth-child(2){
+            stroke-dasharray: 30;             /* //设置虚线的间隔长度 */
+            stroke-dashoffset: 30;             /* 设置线段偏移长度 */
+            animation: dash 20s infinite;
+    } /*添加动画的效果，具体想怎么动，可以修改这里面的东西*/
+      @keyframes dash {
+            0%{
+                stroke-dashoffset: 500;
+              }
+            100%{
+                stroke-dashoffset: 0;
+              }
+               /* 50%{
+                     stroke-dashoffset: -397;
+                    }
+                75%{
+                stroke-dashoffset: 0;
+              }
+              100%{
+                stroke-dashoffset: 397;
+              }*/
+              }
+    </style>
+
+   </head>
+   <body>
+   <script src="https://d3js.org/d3.v3.min.js"></script>
+   <svg width="1000" height="1000"></svg>
+   <!--功能1：动态折线图-->
+   <script>
+
+    var width=600;
+    var height=555;
+    var dataset=
+    [
+    {
+        country:"学生人数",
+        gdp:[[2012,15],[2013,22],[2014,38],
+            [2015,56],[2016,85],[2017,105],
+            [2018,132]]
+    },
+    {
+        country:"职工人数",
+        gdp:[[2012,50],[2013,57],[2014,67],
+            [2015,77],[2016,81],[2017,91],
+            [2018,124]]
+    }
+    ];
+    var padding={top:70, right:70, bottom: 70, left:70};
+    var gdpmax=0;
+    //找出两组GDP中的最大值
+    for(var i=0;i<dataset.length;i++){
+        var currGdp=d3.max(dataset[i].gdp,function(d){
+              return d[1];
+        });
+        if(currGdp>gdpmax)
+          gdpmax=currGdp;
+        }
+        console.log(gdpmax);
+        //定义x、y轴的比例尺
+    var xScale=d3.scale.linear()
+                    .domain([2012,2018])
+                    .range([0,width-padding.left-padding.right]);
+    var yScale=d3.scale.linear()
+                    .domain([0,gdpmax*1.1])
+                    .range([height-padding.bottom-padding.top,0]);
+    var linePath=d3.svg.line()//创建一个直线生成器
+                        .x(function(d){
+                            return xScale(d[0]);
+                        })
+                        .y(function(d){
+                            return yScale(d[1]);
+                        })
+                        .interpolate("basic");
+                        //插值模式,让线段变得更加圆滑
+                        //.curve("basic")
+      //定义两个颜色
+     var colors=[d3.rgb(0,0,255),d3.rgb(0,255,0)];
+     //给折线图定义画布
+     var svg3=d3.select("svg")
+                        // .attr("width",width)
+                        // .attr("height",height);
+
+     svg3.selectAll("path")
+            .data(dataset)
+            .enter()
+            .append("path")
+            .attr("transform","translate("+padding.left+","+padding.top+")")
+            .attr("class","line")
+            .attr("fill","none")
+            .attr("stroke-width",8)
+            .attr("stroke",function(d,i){
+                return colors[i];
+            })
+             .attr("d",function(d){
+                return linePath(d.gdp);
+            })
+           ;
+
+
+          var dataset1 = [];
+            for (var i = 0; i < dataset.length; i++) {
+                    for (var j = 0; j < dataset[i].gdp.length; j++) {
+                        dataset1.push(dataset[i].gdp[j]);
+                    }
+                }
+        svg3.selectAll("circle")
+                    .data(dataset1)
+                    .enter()
+                    .append("circle")
+                    .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
+                    .style('fill',"white")
+                    .style("stroke","black")
+                    .style("stroke-width","2px")
+                    .attr("cx", function(d, i) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d, i) {
+                        //console.log(yScale(d[1]));
+                        return yScale(d[1]);
+
+                    })
+                    .attr('r', function() {
+                        return 3;
+                    });
+
+        var xAxis=d3.svg.axis()
+                    .scale(xScale)
+                    .ticks(5)
+                    .tickFormat(d3.format("d"))
+                    .orient("bottom");
+
+        var yAxis=d3.svg.axis()
+                    .scale(yScale)
+                    .orient("left");
+
+        //添加一个g用于放x轴
+        svg3.append("g")
+            .attr("class","axis")
+            .attr("transform","translate("+padding.left+","+(height-padding.top)+")")
+            .call(xAxis);
+
+        svg3.append("g")
+            .attr("class","axis")
+            .attr("transform","translate("+padding.left+","+padding.top+")")
+            .call(yAxis);
+
+
+         svg3.append('g').selectAll('text')
+         	.data(dataset)
+         	.enter()
+         	.append('text')
+         	.style('fill',function(d,i){
+         		return colors[i];
+         	})
+         	.style('font-size',"1.3em")
+         	.attr('x',function(d,i){
+         		return xScale(2016)+10;
+         	})
+         	.attr("y",function(d,i){
+         		//console.log(d);
+         		return yScale(d.gdp[6][1]);
+         	})
+         	.attr('dy','.1em')
+         	.text(function(d,i){
+         		return d.country;
+         	})
+         	.attr('transform',"translate("+padding.left+","+padding.top+")")
+         	;
+    //采用此方案进行标题设定
+    svg3.append("text").attr("x", 250).attr("y",20).attr("text-anchor", "middle").style("font-size", "23px").style("text-decoration", "underline").text("我们的人员队伍在壮大");
+
+
+    //功能2：饼状图
+var dataset = [
+			{legend:"2014(6)", value:8123, color:"#52C4DF"},
+			{legend:"2015(15)", value:15784, color:"#1FB76D"},
+			{legend:"2016(7.9)", value:10000, color:"#E79724"},
+			{legend:"2017(18)", value:18632, color:"#0DCF83"},
+			{legend:"2018(15)", value:15023, color:"#3EBD2A"}
+			];
+
+var width = 1600;
+var height = 280;
+var radius = 110;
+// 给饼图标题设定画布
+const svg2 = d3.select("svg").append("g");
+svg2.append("text")
+      .attr("x", 700).attr("y",20).attr("text-anchor", "middle").style("font-size", "23px").style("text-decoration", "underline").text("历年经费支出情况（千万）");
+
+		var arc = d3.svg.arc()
+				.outerRadius(radius)
+				.innerRadius(30);
+
+		var pie = d3.layout.pie()
+				.sort(null)
+				.value(function(d){ return d.value; });
+
+// 给饼图设定画布
+   const svg1 = d3.select("svg").append("g")
+              .attr("width", width)
+              .attr("height", height)
+              .append("g")
+              .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+		var g = svg1.selectAll(".fan")
+				.data(pie(dataset))
+				.enter()
+				.append("g")
+				.attr("class", "fan")
+
+		g.append("path")
+			.attr("d", arc)
+			.attr("fill", function(d){ return d.data.color; })
+
+		g.append("text")
+			.attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+			.style("text-anchor", "middle")
+			.text(function(d) { return d.data.legend; });
+
+      //功能3 动态柱状图
+      const data = [
+    		{year: 2014,  entities: [{name:"SCI", value: 7}, {name:"EI", value:7}, {name:"其他", value:7},{name:"总数", value:21}]},
+    		{year: 2015,  entities: [{name:"SCI", value: 16}, {name:"EI", value:8}, {name:"其他", value:14},{name:"总数", value:38}]},
+    		{year: 2016,  entities: [{name:"SCI", value: 24}, {name:"EI", value:15}, {name:"其他", value:21},{name:"总数", value:60}]},
+    		{year: 2017,  entities: [{name:"SCI", value: 37}, {name:"EI", value:26}, {name:"其他", value:23},{name:"总数", value:86}]},
+    		{year: 2018,  entities: [{name:"SCI", value: 67}, {name:"EI", value:42}, {name:"其他", value:26},{name:"总数", value:135}]}
+    	];
+
+      // 设定与矩形和字体相关的样式
+    	const rect = {height: 40, marginV: 10, marginH: 610, marginT: 290};
+    	const font = {height: 20, margin: 42};
+     // 给柱状图设定画布
+      const svg = d3.select("svg").append("g");
+	    const scale = d3.scale.linear().domain([5, 30]).range([0,60]);
+
+	     let index = 0;
+	     let dataEntry = data[index];
+	     //let dataValue = dataEntry["entities"].sort((x, y) => y.value - x.value);
+	     let dataValue = dataEntry["entities"];
+      // 最大长度，即最后一个矩形的底边 y 值
+	     const maxHeight = (rect.marginV + rect.height) * (dataValue.length-1) + rect.marginT
+        // 右下角年份
+	     let comment = svg.append("text").attr("x", 800).attr("y", maxHeight)
+					.attr("fill", "grey").text(dataEntry.year).style("font-size", "80");
+
+          //绑定该年数据
+	     const groups = svg
+				.selectAll("g")
+				.data(dataValue).enter()
+				.append("g")
+				.style("cursor", "pointer")
+				.on("click", ()=>update((++index) % data.length))
+				;
+
+        // 名称标签 以及矩形
+
+	       let labels =  groups.append("text").text( d=>d.name)
+							.attr("x", rect.marginH)
+							.style("font-size", `${font.height}px`)
+
+        let rects = groups.append("rect")
+							.attr("x", rect.marginH + font.margin)
+							.attr("height", rect.height)
+							.attr("fill", d => d.name == "SCI" ? "#1FB76D": d.name == "EI" ? "#E79724" : d.name == "其他" ? "#0DCF83" :"#3EBD2A" );
+
+        svg.append("text").attr("x", 645).attr("y",280).attr("text-anchor", "middle").style("font-size", "23px").style("text-decoration", "underline").text("论文发表节节高");
+//svg.append("g").attr("transform", `translate(${rect.marginH}, ${maxHeight + rect.height + rect.marginV})`).call(d3.axisBottom(scale));
+//svg.append("g").attr("transform", `translate(${rect.marginH}, ${maxHeight + rect.height + rect.marginV})`).call(d3.svg.axis().scale());
+//svg.append("g").attr("transform", `translate(${rect.marginH}, ${ rect.marginH})`).call(d3.axisRight(scale));
+var xScale=d3.scale.linear()
+                    .domain([5,35])
+                    .range([0,300]);
+
+var xAxis=d3.svg.axis()
+                    .scale(xScale)
+                    .ticks(5)
+                    .tickFormat(d3.format("d"))
+                    .orient("bottom");
+svg.append("g")
+            .attr("class","axis")
+            .attr("transform","translate("+650+","+485+")")
+            .call(xAxis);
+
+	function updateElements(){
+		labels.data(dataValue, d=>d.name).transition().duration(600)
+			.attr("y", (_, i) => (rect.marginV + rect.height) * i + rect.marginT + rect.height / 2);
+
+		// labels_num.data(dataValue, d=>d.name).transition().duration(600)
+		// 	.attr("y", (_, i) => (rect.marginV + rect.height) * i + rect.marginT + rect.height / 2)
+		// 	.attr("x", d => scale(d.value)+font.height)
+
+
+		rects.data(dataValue, d=>d.name).transition().duration(600)
+			.attr("y", (_, i) => (rect.marginV + rect.height) * i + rect.marginT )
+			.attr("width", d => scale(d.value))
+	}
+
+	updateElements()
+
+	function update(i){
+
+		dataEntry = data[i];
+		//dataValue = dataEntry["entities"].sort((x, y) => y.value - x.value);
+		dataValue = dataEntry["entities"];
+
+	  comment.text(dataEntry.year);
+	  updateElements()
+	}
+
+	setInterval(()=> update((++index) % data.length), 1500);
+
+</script>
+</body>
+</html>
